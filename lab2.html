@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Адаптивная вёрстка под ширину устройства -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Задание 2 — CSS-рисунок (Вариант 4)</title>
+
+    <!-- Общие стили сайта (палитра, сетки, хедер/футер, типографика) -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <!-- Локальные стили для рисунка ЛР-2 (убедитесь, что путь корректный) -->
+    <link rel="stylesheet" href="assets/css/pic2.css" />
+    <a
+      href="index.html"
+      class="brand"
+      aria-label="DrozdovaLayout — на главную"
+    >
+      <!-- CSS-только логотип (абстрактный блок с «?»), без изображений -->
+      <div class="abstract-logo">
+        <span class="question">?</span>
+      </div>
+      <span class="brand-text">DrozdovaLayout</span>
+    </a>
+  </head>
+  <body>
+    <!-- Скрытая ссылка для клавиатурной навигации: перейти к основному контенту -->
+    <a class="skip-link" href="#main">К содержанию</a>
+
+    <!-- Шапка сайта с логотипом и основным меню -->
+    <header class="site-header">
+      <!-- Логотип/бренд, ведущий на главную -->
+      <a href="index.html" class="brand" aria-label="На главную">
+        <span class="css-logo" aria-hidden="true"></span>
+        <span class="brand-text">DrozdovaLayout</span>
+      </a>
+
+      <!-- Основная навигация -->
+      <nav id="site-nav" class="site-nav" aria-label="Основное меню">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="assignments.html" class="active">Задания</a></li>
+          <li><a href="course.html">Курсовая</a></li>
+          <li><a href="gallery.html">Галерея</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Центрирующий контейнер контента -->
+    <div class="container" id="main">
+      <main>
+        <!-- Вступительный блок страницы задания -->
+        <section class="page-intro">
+          <h1>Лабораторная 2: CSS-рисунок (Вариант 4)</h1>
+          <p>
+            Рисунок реализован <strong>полностью на CSS</strong> (без
+            изображений): солнце, арки, лодка и волны. Размер холста —
+            200×200&nbsp;px.
+            <!-- Примечание: ниже подключён /assets/css/pic2.css, а здесь упомянут pic.css — проверьте соответствие -->
+            Стили подключены из <code>/assets/css/pic.css</code>.
+          </p>
+        </section>
+
+        <!-- Демонстрационный блок: сам «холст» рисунка с внутренними элементами -->
+        <section
+          class="demo-block"
+          style="
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+          "
+        >
+          <!-- Рисунок. role="img" + aria-label повышают доступность для экранных читалок -->
+          <div
+            class="pic v4"
+            aria-label="CSS рисунок: солнце, арки, лодка и волны"
+            role="img"
+          >
+            <!-- Солнце -->
+            <div class="sun"></div>
+
+            <!-- Три арки на заднем плане -->
+            <div class="arch a1"></div>
+            <div class="arch a2"></div>
+            <div class="arch a3"></div>
+            <div class="arch a4"></div>
+
+            <!-- Лодка: мачта, парус, флаг, корпус -->
+            <div class="boat">
+              <div class="mast"></div>
+              <div class="sail"></div>
+              <div class="flag"></div>
+              <div class="hull"></div>
+            </div>
+
+            <!-- Волны (эллипсы с радиальным градиентом) -->
+            <div class="wave w1"></div>
+            <div class="wave w2"></div>
+            <div class="wave w3"></div>
+            <div class="wave w4"></div>
+            <div class="wave w5"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Подвал сайта: мини-бренд, вторичное меню, копирайт -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="css-logo css-logo--sm" aria-hidden="true"></span>
+          <strong>DrozdovaLayout</strong>
+        </div>
+        <nav class="footer-nav" aria-label="Нижнее меню">
+          <a href="index.html">Главная</a>
+          <a href="assignments.html">Задания</a>
+          <a href="course.html">Курсовая</a>
+          <a href="gallery.html">Галерея</a>
+        </nav>
+        <div class="copy">© 2025 DrozdovaLayout. Учебный проект.</div>
+      </div>
+    </footer>
+  </body>
+</html>

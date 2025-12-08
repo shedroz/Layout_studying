@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <!-- Адаптивная вёрстка: масштаб и ширина под ширину устройства -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Короткое описание страницы -->
+    <meta
+      name="description"
+      content="DrozdovaLayout — учебное портфолио: задания, курсовая, демонстрации."
+    />
+
+    <!-- Предзагрузка основного CSS (ускоряет отрисовку) -->
+    <link rel="preload" href="assets/css/styles.css" as="style" />
+    <!-- Подключение общего стиля сайта -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <!-- Скрипт с логикой сайта (например, бургер-меню); defer — запуск после парсинга HTML -->
+    <script defer src="assets/js/main.js"></script>
+
+    <title>DrozdovaLayout — Задания</title>
+  </head>
+  <body>
+    <!-- Скрытая ссылка для навигации с клавиатуры: сразу к основному контенту -->
+    <a class="skip-link" href="#main">К содержанию</a>
+
+    <!-- Шапка сайта: логотип/бренд + навигация -->
+    <header class="site-header">
+      <!-- Брендовый блок: кликабелен, ведёт на главную -->
+      <a
+        href="index.html"
+        class="brand"
+        aria-label="DrozdovaLayout — на главную"
+      >
+        <!-- CSS-только логотип (абстрактный блок с «?»), без изображений -->
+        <div class="abstract-logo">
+          <span class="question">?</span>
+        </div>
+        <span class="brand-text">DrozdovaLayout</span>
+      </a>
+
+      <!-- Кнопка «бургер» для мобильной навигации -->
+      <button
+        class="nav-toggle"
+        aria-expanded="false"
+      >
+        aria-controls="site-nav"
+        <!-- указывает, какой блок раскрываем -->
+        aria-label="Меню" >
+        <span class="bar"></span><span class="bar"></span
+        ><span class="bar"></span>
+      </button>
+
+      <!-- Основное меню сайта -->
+      <nav id="site-nav" class="site-nav" aria-label="Основное меню">
+        <ul>
+          <!-- Совету: на активной странице можно добавлять aria-current="page" -->
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="assignments.html">Задания</a></li>
+          <li><a href="course.html">Курсовая</a></li>
+          <li><a href="gallery.html">Галерея</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Центрирующий контейнер фиксированной ширины -->
+    <div class="container" id="main">
+      <main>
+        <!-- Вступление страницы: заголовок и краткое описание секции «Задания» -->
+        <section class="page-intro">
+          <h1>Задания</h1>
+          <p>
+            Ниже — список лабораторных и контрольных с краткими требованиями и
+            ссылками на подробности. Каждая карточка содержит основные
+            параметры: тему, срок и ожидаемый результат.
+          </p>
+        </section>
+
+        <!-- Сетка карточек: модификатор grid three = 3 столбца на десктопе -->
+        <section class="cards grid three">
+          <!-- Карточка: Задание 1 -->
+          <article class="card">
+            <h3>Задание 1: Верстка сайта</h3>
+            <p>
+              Создать базовую страницу с семантическими тегами и ссылкой «к
+              содержанию».
+            </p>
+            <!-- Кнопка ведёт на итоговую страницу/результат -->
+            <a class="btn btn-outline" href="index.html">Результат</a>
+          </article>
+
+          <!-- Карточка: ЛР-2 (CSS-рисунок) -->
+          <article class="card">
+            <h3>Задание 2: Сверстать на css картинку</h3>
+            <p>
+              Каждому студенту выдается вариант и картинка, которую нужно
+              сверстать один-в-один на языке css.
+            </p>
+            <a class="btn btn-outline" href="lab2.html">Результат</a>
+          </article>
+
+          <!-- Карточка: ЛР-3 (Flexbox) -->
+          <article class="card">
+            <h3>Лабораторная 3: Flexbox</h3>
+            <p>
+              Интерактивный Flexbox-элемент (≤ 200×200): фон, кастрюля и крышка
+              как слои. При наведении кастрюля плавно проявляется и «дышит»
+              (масштаб/прозрачность). При зажатии — скрывается верхняя подпись,
+              появляется боковая «Жаропрочная посуда», крышка «хлопает» на
+              шарнире; при отпускании — короткая встряска. Доступно с клавиатуры
+              (<code>Space</code>/<code>Enter</code>). Без библиотек, чистые
+              HTML/CSS/JS.
+            </p>
+
+            <a class="btn btn-outline" href="lab3.html">Результат</a>
+          </article>
+
+          <!-- Карточка: ЛР-4 (таблица фраз) -->
+          <article class="card">
+            <h3>Лабораторная 4: Таблица фраз (латынь / перевод)</h3>
+            <p>
+              Таблица пар «латынь — перевод». Кнопка «Создать» добавляет строку
+              в случайном неповторяющемся порядке, чётные/нечётные клики
+              оформляются классами
+              <code>class1</code>/<code>class2</code>. «Перекрасить» делает
+              чётные строки полужирными, «Сбросить» очищает таблицу и
+              перетасовывает порядок. Без библиотек.
+            </p>
+
+            <a class="btn btn-outline" href="lab4.html">Результат</a>
+          </article>
+
+          <!-- Карточка: ЛР-5 (Drag&Drop) -->
+          <article class="card">
+            <h3>Лабораторная 5: Перетаскивание объектов</h3>
+            <p>
+              Пазл «Собрать животное»: 5 деталей (голова, тело, хвост, поводок,
+              мяч). Перетаскивание мышью/тачем, вращение — клавишами
+              <code>Q/E</code> или колесом. Тело можно закрепить якорем в любой
+              точке поля; остальные части при совпадении позиции и угла
+              прищёлкиваются. Сброс — <code>R</code>, калибровка смещений —
+              <code>Shift+S</code>. По завершении — анимация хвоста и мячика.
+              Без библиотек (чистые HTML/CSS/JS).
+            </p>
+            <a class="btn btn-outline" href="lab5.html">Результат</a>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="css-logo css-logo--sm" aria-hidden="true"></span>
+          <strong>DrozdovaLayout</strong>
+        </div>
+        <nav class="footer-nav" aria-label="Нижнее меню">
+          <a href="index.html">Главная</a>
+          <a href="assignments.html">Задания</a>
+          <a href="course.html">Курсовая</a>
+          <a href="gallery.html">Галерея</a>
+        </nav>
+        <div class="copy">© 2025 DrozdovaLayout. Учебный проект.</div>
+      </div>
+    </footer>
+  </body>
+</html>

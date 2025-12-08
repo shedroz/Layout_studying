@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Лабораторная 4 — Латынь и перевод</title>
+
+    <!-- Общий стиль сайта -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <a href="index.html" class="brand" aria-label="DrozdovaLayout — на главную">
+      <!-- CSS-только логотип (абстрактный блок с «?»), без изображений -->
+      <div class="abstract-logo">
+        <span class="question">?</span>
+      </div>
+      <span class="brand-text">DrozdovaLayout</span>
+    </a>
+    <style>
+      /* Карточка-контейнер задания */
+      .lab4 .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: var(--shadow);
+      }
+
+      /* Таблица с заголовком и строками */
+      .lab4 table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.75rem 0;
+      }
+      .lab4 thead th {
+        background: #121b34;
+        color: var(--muted);
+        font-weight: 700;
+        padding: 0.6rem 0.7rem;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+      .lab4 tbody td {
+        padding: 0.6rem 0.7rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .lab4 tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      /* разные фоны для чёт/нечёт кликов «Создать» */
+      .lab4 .class1 {
+        background: rgba(159, 215, 255, 0.12);
+      } /* чётный клик */
+      .lab4 .class2 {
+        background: rgba(79, 140, 255, 0.12);
+      } /* нечётный клик */
+
+      /* Панель кнопок и подсказка */
+      .lab4 .toolbar {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .lab4 .hint {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      /* «Перекрасить»: все чётные строки таблицы становятся полужирными */
+      .lab4.even-bold tbody tr:nth-child(even) {
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Скрытая ссылка для навигации с клавиатуры к основному контенту -->
+    <a class="skip-link" href="#main">К содержанию</a>
+
+    <!-- Шапка сайта с логотипом и меню -->
+    <header class="site-header">
+      <a href="index.html" class="brand" aria-label="На главную">
+        <span class="css-logo" aria-hidden="true"></span>
+        <span class="brand-text">DrozdovaLayout</span>
+      </a>
+      <nav class="site-nav" aria-label="Основное меню">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="assignments.html" class="active">Задания</a></li>
+          <li><a href="course.html">Курсовая</a></li>
+          <li><a href="gallery.html">Галерея</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="container" id="main">
+      <main class="lab4">
+        <!-- Заголовок и краткая инструкция по кнопкам -->
+        <section class="page-intro">
+          <h1>Лабораторная 4 — Таблица фраз (латынь / перевод)</h1>
+          <p class="hint">
+            «Создать» добавляет строку в случайном неповторяющемся порядке:
+            чётные клики → <b>class1</b>, нечётные → <b>class2</b>.
+            «Перекрасить» делает чётные строки полужирными. «Сбросить» очищает
+            таблицу и порядок.
+          </p>
+        </section>
+        <!-- Карточка задания: кнопки управления и таблица -->
+        <section class="card">
+          <div class="toolbar">
+            <!-- Кнопки по условию задачи -->
+            <button id="btnCreate" class="btn btn-accent" type="button">
+              Создать
+            </button>
+            <button id="btnRepaint" class="btn" type="button">
+              Перекрасить
+            </button>
+            <button id="btnReset" class="btn" type="button">Сбросить</button>
+            <span class="hint"
+              >Когда фразы закончатся — появится уведомление.</span
+            >
+          </div>
+
+          <!-- Таблица: заголовок фиксированный, тело наполняется динамически -->
+          <table
+            id="phrasesTable"
+            aria-label="Таблица латинских выражений и переводов"
+          >
+            <thead>
+              <tr>
+                <th>Латинский язык</th>
+                <th>Русский язык</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="css-logo css-logo--sm" aria-hidden="true"></span>
+          <strong>DrozdovaLayout</strong>
+        </div>
+        <nav class="footer-nav" aria-label="Нижнее меню">
+          <a href="index.html">Главная</a>
+          <a href="assignments.html" class="active">Задания</a>
+          <a href="course.html">Курсовая</a>
+          <a href="gallery.html">Галерея</a>
+        </nav>
+        <div class="copy">© 2025 DrozdovaLayout</div>
+      </div>
+    </footer>
+
+    <script>
+      (() => {
+        /* Два параллельных массива: латынь и переводы.
+       Важно: длины синхронизированы (берём min, чтобы не выйти за пределы). */
+        const latin = [
+          "Consuetudo est altera natura",
+          "Nota bene",
+          "Nulla calamitas sola",
+          "Per aspera ad astra",
+        ];
+        const russian = [
+          "Привычка — вторая натура",
+          "Заметьте хорошо!",
+          "Беда не приходит одна",
+          "Через тернии к звёздам",
+        ];
+        const N = Math.min(latin.length, russian.length);
+
+        /* Ссылки на DOM-элементы: таблица/тело, кнопки, корневой .lab4 */
+        const table = document.getElementById("phrasesTable");
+        const tbody = table.querySelector("tbody");
+        const btnCreate = document.getElementById("btnCreate");
+        const btnRepaint = document.getElementById("btnRepaint");
+        const btnReset = document.getElementById("btnReset");
+        const lab4Root = document.querySelector(".lab4");
+
+        /* order — массив индексов [0..N-1] в случайном порядке (без повторов),
+       cursor — сколько строк уже выведено,
+       clicks — счётчик нажатий «Создать» (чёт/нечёт классов). */
+        let order = [];
+        let cursor = 0;
+        let clicks = 0;
+
+        /* Тасование Фишера–Йетса для равновероятной перестановки индексов */
+        function shuffleOrder() {
+          order = Array.from({ length: N }, (_, i) => i);
+          for (let i = N - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [order[i], order[j]] = [order[j], order[i]];
+          }
+        }
+
+        /* Полный сброс состояния: чистим строки, снимаем «перекраску»,
+       обнуляем счётчики и создаём новый случайный порядок. */
+        function resetAll() {
+          tbody.innerHTML = "";
+          lab4Root.classList.remove("even-bold");
+          cursor = 0;
+          clicks = 0;
+          shuffleOrder();
+        }
+
+        /* Инициализация: один раз генерируем порядок и очищаем таблицу */
+        resetAll();
+
+        /* Обработчик «Создать»: берём следующий индекс из order,
+       создаём <tr>, назначаем class1/class2 по чётности клика,
+       добавляем ячейки с парой «латынь/русский». */
+        btnCreate.addEventListener("click", () => {
+          if (cursor >= N) {
+            alert("Фразы закончились");
+            return;
+          }
+          const idx = order[cursor++];
+          const la = latin[idx];
+          const ru = russian[idx];
+
+          clicks++;
+          const tr = document.createElement("tr");
+          tr.className = clicks % 2 === 0 ? "class1" : "class2";
+
+          const tdLa = document.createElement("td");
+          tdLa.textContent = la;
+          const tdRu = document.createElement("td");
+          tdRu.textContent = ru;
+          tr.append(tdLa, tdRu);
+          tbody.appendChild(tr);
+        });
+
+        /* «Перекрасить»: добавляем класс на корень лабы,
+       где через :nth-child(even) делаем чётные строки жирными. */
+        btnRepaint.addEventListener("click", () => {
+          lab4Root.classList.add("even-bold");
+        });
+
+        /* «Сбросить»: полностью очищаем таблицу и порядок вывода */
+        btnReset.addEventListener("click", resetAll);
+      })();
+    </script>
+  </body>
+</html>

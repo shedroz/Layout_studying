@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Лабораторная 5 — Пазл «Собрать животное»</title>
+
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <a
+      href="index.html"
+      class="brand"
+      aria-label="DrozdovaLayout — на главную"
+    >
+      <!-- CSS-только логотип (абстрактный блок с «?»), без изображений -->
+      <div class="abstract-logo">
+        <span class="question">?</span>
+      </div>
+      <span class="brand-text">DrozdovaLayout</span>
+    </a>
+    <style>
+      /* Вступительный блок и стиль для «клавиш» в тексте */
+      .lab5 .page-intro {
+        padding: 1.2rem 0 1rem;
+      }
+      .lab5 .kbd {
+        font: 600 12px/1.2 ui-monospace, Menlo, Consolas, monospace;
+        padding: 2px 6px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #0c142b;
+        color: #dfe8ff;
+      }
+
+      /* Карточка-эталон: подстраивается под реальную ширину изображения без пустых полей */
+      .lab5 .reference {
+        display: inline-block;
+        width: auto;
+        max-width: 100%;
+        margin: 0.5rem 0 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow, 0 10px 28px rgba(0, 0, 0, 0.35));
+        overflow: hidden;
+      }
+      .lab5 .reference img {
+        display: block;
+        width: auto; /* сохраняем реальную ширину */
+        max-width: 100%; /* но не шире контейнера на узких экранах */
+        height: auto;
+      }
+      .lab5 .reference figcaption {
+        padding: 0.6rem 0.9rem;
+        color: var(--muted);
+      }
+
+      /* Игровое поле: фиксированное соотношение сторон 4:3, тень, рамка и радиусы */
+      .lab5 .board {
+        position: relative;
+        width: min(1200px, 96vw);
+        aspect-ratio: 4 / 3;
+        margin: 1rem auto 0;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius, 14px);
+        overflow: hidden;
+        box-shadow: var(--shadow, 0 12px 32px rgba(0, 0, 0, 0.35));
+      }
+      /* Левая и правая половины поля (левая — «разложено», правая — «собрать») */
+      .lab5 .panel {
+        position: absolute;
+        inset: 0 50% 0 0;
+      }
+      .lab5 .panel.right {
+        left: 50%;
+        right: 0;
+        border-left: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .lab5 .panel h3 {
+        position: absolute;
+        left: 16px;
+        top: 12px;
+        margin: 0;
+        font-weight: 800;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      /* Бейдж «Готово!» появляется, когда все части защёлкнуты */
+      .lab5 .success-badge {
+        position: absolute;
+        right: 16px;
+        bottom: 14px;
+        display: none;
+        padding: 0.55rem 0.85rem;
+        border-radius: 10px;
+        font-weight: 800;
+        color: #0b1220;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      }
+      .lab5 .board.done .success-badge {
+        display: inline-block;
+      }
+
+      /* Регистрируем кастомные CSS-переменные для анимаций (хвост, мяч) */
+      @property --anim-rot {
+        syntax: "<angle>";
+        inherits: false;
+        initial-value: 0deg;
+      }
+      @property --anim-ty {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      /* Общий стиль перетаскиваемой части (любой картинки-детали) */
+      .lab5 .piece {
+        position: absolute;
+        left: 0;
+        top: 0;
+        touch-action: none;
+        user-select: none;
+        will-change: transform;
+        width: var(--w, 220px);
+        height: auto;
+        cursor: grab;
+        filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.2));
+        /* Позиционируем через CSS-переменные: translate по X/Y, поворот и доп. смещение по Y */
+        transform: translate(calc(var(--x, 0px)), calc(var(--y, 0px)))
+          rotate(calc(var(--rot, 0deg) + var(--anim-rot, 0deg)))
+          translate(0, var(--anim-ty, 0px));
+        transform-origin: 50% 50%;
+      }
+      .lab5 .piece:active {
+        cursor: grabbing;
+      } /* курсор во время перетаскивания */
+      .lab5 .piece.selected {
+        filter: drop-shadow(0 0 14px rgba(159, 215, 255, 0.55));
+      } /* подсветка выбранной */
+      .lab5 .piece.locked {
+        pointer-events: none;
+        cursor: default;
+        filter: none;
+      } /* зафиксирована — без событий */
+
+      /* Анимации успеха: хвост виляет, мяч подпрыгивает */
+      .lab5 .tail-wag {
+        animation: wag 0.7s ease-in-out infinite alternate;
+        transform-origin: 90% 50%;
+      }
+      @keyframes wag {
+        from {
+          --anim-rot: -14deg;
+        }
+        to {
+          --anim-rot: 10deg;
+        }
+      }
+      .lab5 .ball-bounce {
+        animation: bounce 0.8s ease-in-out infinite;
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          --anim-ty: 0px;
+        }
+        50% {
+          --anim-ty: -12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Ссылка для быстрого перехода к контенту с клавиатуры -->
+    <a class="skip-link" href="#main">К содержанию</a>
+
+    <!-- Хедер сайта (логотип, бренд, навигация) -->
+    <header class="site-header">
+      <a href="index.html" class="brand" aria-label="На главную">
+        <span class="css-logo" aria-hidden="true"></span>
+        <span class="brand-text">DrozdovaLayout</span>
+      </a>
+      <nav class="site-nav" aria-label="Основное меню">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="assignments.html" class="active">Задания</a></li>
+          <li><a href="course.html">Курсовая</a></li>
+          <li><a href="gallery.html">Галерея</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="container" id="main">
+      <main class="lab5">
+        <!-- Краткая инструкция и горячие клавиши -->
+        <section class="page-intro">
+          <h1>ЛР-5: перетаскивание и поворот — «Собрать животное»</h1>
+          <p>
+            Перетащи детали. <b>Тело</b> ставь куда угодно — при отпускании оно
+            становится якорем. Остальные детали прищёлкнутся к телу при
+            совпадении положения и угла. Вращение —
+            <span class="kbd">Q</span>/<span class="kbd">E</span> или колесо
+            мыши. Сброс — <span class="kbd">R</span>. Калибровка относительных
+            смещений — <span class="kbd">Shift+S</span>.
+          </p>
+        </section>
+
+        <!-- Эталонная картинка для ориентира (замени путь на свой файл) -->
+        <figure class="reference" style="max-width: 720px">
+          <img
+            src="assets/img/reference_dog.png"
+            alt="Как должно быть собрано"
+          />
+          <figcaption>Эталон сборки (для ориентира).</figcaption>
+        </figure>
+
+        <!-- Поле: левая часть — разложить, правая — собирать. Пазл можно собирать в любой точке поля -->
+        <section class="board" id="board" aria-label="Поле для сборки">
+          <div class="panel"><h3>Разложено</h3></div>
+          <div class="panel right">
+            <h3>Собрать животное</h3>
+            <div class="success-badge">Готово!</div>
+          </div>
+
+          <!-- Пять частей пазла (пути к PNG подставь свои). data-w — базовая ширина в пикселях -->
+          <img
+            class="piece"
+            id="body"
+            src="assets/img/body.png"
+            alt="Тело"
+            data-w="360"
+          />
+          <img
+            class="piece"
+            id="head"
+            src="assets/img/head.png"
+            alt="Голова"
+            data-w="160"
+          />
+          <img
+            class="piece"
+            id="tail"
+            src="assets/img/tail.png"
+            alt="Хвост"
+            data-w="150"
+          />
+          <img
+            class="piece"
+            id="leash"
+            src="assets/img/leash.png"
+            alt="Поводок"
+            data-w="100"
+          />
+          <img
+            class="piece"
+            id="ball"
+            src="assets/img/ball.png"
+            alt="Мяч"
+            data-w="120"
+          />
+        </section>
+      </main>
+    </div>
+
+    <!-- Футер сайта -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="css-logo css-logo--sm" aria-hidden="true"></span>
+          <strong>DrozdovaLayout</strong>
+        </div>
+        <nav class="footer-nav" aria-label="Нижнее меню">
+          <a href="index.html">Главная</a>
+          <a href="assignments.html" class="active">Задания</a>
+          <a href="course.html">Курсовая</a>
+          <a href="gallery.html">Галерея</a>
+        </nav>
+        <div class="copy">© 2025 DrozdovaLayout</div>
+      </div>
+    </footer>
+
+    <script>
+      (() => {
+        /* Основные ссылки на элементы UI */
+        const board = document.getElementById("board");
+        const badge = board.querySelector(".success-badge");
+
+        /* Виртуальная система координат для независимости от реальных размеров DOM:
+       всё считаем в системе 640×480 (4:3), а потом пересчитываем в пиксели */
+        const W = 640,
+          H = 480;
+
+        /* Допуски для защёлкивания:
+       SNAP_DIST — радиус по позиции, SNAP_ANG — по углу (в градусах) */
+        const SNAP_DIST = 26,
+          SNAP_ANG = 14;
+
+        /* Относительные смещения элементов от тела в локальной системе тела.
+       dx/dy — где должна лежать часть относительно центра тела;
+       drot — на какой угол должна быть повёрнута часть (относительно тела).
+       Эти значения можно быстро «вынуть» с текущей сцены по Shift+S (см. ниже). */
+        let REL = {
+          head: { dx: 39, dy: -50, drot: 2 },
+          tail: { dx: -92, dy: -31, drot: 8 },
+          leash: { dx: -15, dy: -57, drot: 247 },
+          ball: { dx: 41, dy: 77, drot: 20 },
+        };
+
+        /* Стартовые позиции, где лежат части при загрузке (левая половина поля) */
+        const start = [
+          { id: "body", x: 210, y: 300, rot: -8 },
+          { id: "head", x: 120, y: 150, rot: 50 },
+          { id: "tail", x: 100, y: 360, rot: -100 },
+          { id: "leash", x: 250, y: 140, rot: 35 },
+          { id: "ball", x: 150, y: 380, rot: 12 },
+        ];
+
+        /* Находим все элементы-части и задаём им ширину из data-w через CSS-переменную */
+        const pieces = [...document.querySelectorAll(".lab5 .piece")];
+        pieces.forEach((el) =>
+          el.style.setProperty("--w", (el.dataset.w || 220) + "px")
+        );
+
+        /* Помощники конвертации координат:
+       - rect(): геометрию поля
+       - s2b(): экранные координаты (clientX/Y) → виртуальные (W×H)
+       - b2css(): виртуальные координаты → пиксели для CSS-translate */
+        const rect = () => board.getBoundingClientRect();
+        const s2b = (cx, cy) => {
+          const r = rect();
+          return {
+            x: ((cx - r.left) * W) / r.width,
+            y: ((cy - r.top) * H) / r.height,
+          };
+        };
+        const b2css = (x, y) => {
+          const r = rect();
+          return { x: (x / W) * r.width, y: (y / H) * r.height };
+        };
+
+        /* Нормализация угла в [0..360), разница углов с учётом круга */
+        const normAng = (a) => ((a % 360) + 360) % 360;
+        const angDiff = (a, b) => {
+          let d = normAng(a) - normAng(b);
+          if (d > 180) d -= 360;
+          if (d < -180) d += 360;
+          return Math.abs(d);
+        };
+
+        /* Позиционирование части:
+       сохраняем x/y/rot в dataset и пробрасываем в CSS-переменные для transform */
+        function place(el, x, y, rot = 0) {
+          const p = b2css(x, y);
+          el.style.setProperty("--x", p.x - el.width / 2 + "px");
+          el.style.setProperty("--y", p.y - el.height / 2 + "px");
+          el.style.setProperty("--rot", rot + "deg");
+          el.dataset.x = x;
+          el.dataset.y = y;
+          el.dataset.rot = rot;
+        }
+
+        /* Пересчёт «относительных» координат в мировые и обратно:
+       fromBody(anchor, rel) → мировая позиция части из позы тела
+       toBody(anchor, world) → относительные dx/dy/drot части относительно тела */
+        function fromBody(anchor, rel) {
+          const th = (anchor.rot * Math.PI) / 180;
+          const wx = anchor.x + rel.dx * Math.cos(th) - rel.dy * Math.sin(th);
+          const wy = anchor.y + rel.dx * Math.sin(th) + rel.dy * Math.cos(th);
+          return { x: wx, y: wy, rot: normAng(anchor.rot + (rel.drot || 0)) };
+        }
+        function toBody(anchor, world) {
+          const th = (anchor.rot * Math.PI) / 180;
+          const dx = world.x - anchor.x,
+            dy = world.y - anchor.y;
+          return {
+            dx: dx * Math.cos(th) + dy * Math.sin(th),
+            dy: -dx * Math.sin(th) + dy * Math.cos(th),
+            drot: normAng(world.rot - anchor.rot),
+          };
+        }
+
+        /* Ждём, пока изображения получат размеры (img.complete / onload),
+       расставляем стартовые позиции и навешиваем обработчики */
+        Promise.all(
+          pieces.map((img) =>
+            img.complete ? 1 : new Promise((r) => (img.onload = r))
+          )
+        ).then(() => {
+          start.forEach((s) =>
+            place(document.getElementById(s.id), s.x, s.y, s.rot)
+          );
+          pieces.forEach(attach);
+          /* При ресайзе пересчитываем их CSS-позиции из сохранённых виртуальных координат */
+          window.addEventListener("resize", () =>
+            pieces.forEach((el) =>
+              place(el, +el.dataset.x, +el.dataset.y, +el.dataset.rot)
+            )
+          );
+        });
+
+        /* Текущее состояние перетаскивания */
+        let selected = null,
+          dragging = false,
+          pid = null,
+          grabDx = 0,
+          grabDy = 0;
+        let anchor = null; // поза/положение тела (после отпускания — «якорь»)
+
+        /* Навешиваем обработчики на одну часть:
+       - pointerdown: выбор и захват
+       - pointermove: перемещение
+       - pointerup: фиксация/попытка защёлкнуть
+       - wheel: поворот (а также Q/E в обработчике клавиш ниже) */
+        function attach(el) {
+          el.addEventListener("pointerdown", (e) => {
+            if (el.classList.contains("locked")) return; // зафиксированную деталь не двигаем
+            e.preventDefault();
+            selected?.classList.remove("selected");
+            selected = el;
+            el.classList.add("selected");
+            pid = e.pointerId;
+            el.setPointerCapture(pid);
+            dragging = true;
+            el.style.zIndex = 10;
+            const p = s2b(e.clientX, e.clientY);
+            grabDx = p.x - +el.dataset.x;
+            grabDy = p.y - +el.dataset.y;
+          });
+          el.addEventListener("pointermove", (e) => {
+            if (!dragging || pid !== e.pointerId || selected !== el) return;
+            const p = s2b(e.clientX, e.clientY);
+            place(el, p.x - grabDx, p.y - grabDy, +el.dataset.rot);
+          });
+          el.addEventListener("pointerup", (e) => {
+            if (pid !== e.pointerId) return;
+            el.releasePointerCapture(pid);
+            pid = null;
+            dragging = false;
+            el.style.zIndex = "";
+            if (el.id === "body") {
+              // тело при отпускании фиксируем как якорь
+              lockBody(el);
+            } else {
+              // остальные детали пытаемся защёлкнуть
+              trySnapPart(el);
+            }
+          });
+          /* Колесо мыши — плавный поворот на ±6°; пытаемся защёлкнуть при каждом шаге */
+          el.addEventListener(
+            "wheel",
+            (e) => {
+              e.preventDefault();
+              if (selected !== el) {
+                selected?.classList.remove("selected");
+                selected = el;
+                el.classList.add("selected");
+              }
+              place(
+                el,
+                +el.dataset.x,
+                +el.dataset.y,
+                (+el.dataset.rot || 0) + Math.sign(e.deltaY) * 6
+              );
+              if (el.id !== "body") trySnapPart(el);
+            },
+            { passive: false }
+          );
+        }
+
+        /* Фиксация тела: запоминаем его позу как anchor.
+       Сразу проверяем, не попали ли какие-то части в зону защёлкивания. */
+        function lockBody(el) {
+          el.classList.add("locked");
+          anchor = {
+            x: +el.dataset.x,
+            y: +el.dataset.y,
+            rot: +el.dataset.rot || 0,
+          };
+          ["head", "tail", "leash", "ball"].forEach((id) =>
+            trySnapPart(document.getElementById(id))
+          );
+          checkDone();
+        }
+
+        /* Попытка защёлкивания детали к телу:
+       сравниваем расстояние до целевой точки и разницу углов с допусками */
+        function trySnapPart(el) {
+          if (!anchor || el.classList.contains("locked")) return;
+          const rel = REL[el.id];
+          if (!rel) return; // для тела rel нет
+          const t = fromBody(anchor, rel); // целевая поза в мире
+          const nearPos =
+            Math.hypot(+el.dataset.x - t.x, +el.dataset.y - t.y) <= SNAP_DIST;
+          const nearAng = angDiff(+el.dataset.rot || 0, t.rot) <= SNAP_ANG;
+          if (nearPos && nearAng) {
+            place(el, t.x, t.y, t.rot); // защёлкнули
+            el.classList.add("locked");
+            selected?.classList.remove("selected");
+            selected = null;
+            checkDone();
+          }
+        }
+
+        /* Проверяем, все ли пять деталей зафиксированы; если да — показываем бейдж и запускаем анимации */
+        function checkDone() {
+          const done = ["body", "head", "tail", "leash", "ball"].every((id) =>
+            document.getElementById(id).classList.contains("locked")
+          );
+          if (!done) return;
+          document.getElementById("tail")?.classList.add("tail-wag");
+          document.getElementById("ball")?.classList.add("ball-bounce");
+          board.classList.add("done");
+          badge.style.display = "inline-block";
+        }
+
+        /* Клавиатура:
+       - Q / ← — поворот на -10°
+       - E / → — поворот на +10°
+       - Shift+S — вывести в консоль вычисленные REL для текущей позы (калибровка)
+       - R — полный сброс пазла к старту */
+        window.addEventListener("keydown", (e) => {
+          if (selected && !selected.classList.contains("locked")) {
+            if (e.key.toLowerCase() === "q" || e.key === "ArrowLeft") {
+              place(
+                selected,
+                +selected.dataset.x,
+                +selected.dataset.y,
+                (+selected.dataset.rot || 0) - 10
+              );
+              if (selected.id !== "body") trySnapPart(selected);
+            }
+            if (e.key.toLowerCase() === "e" || e.key === "ArrowRight") {
+              place(
+                selected,
+                +selected.dataset.x,
+                +selected.dataset.y,
+                (+selected.dataset.rot || 0) + 10
+              );
+              if (selected.id !== "body") trySnapPart(selected);
+            }
+          }
+
+          /* Калибровка: вычисляем dx/dy/drot для каждой части относительно тела и печатаем в консоль */
+          if (e.key === "S" && e.shiftKey && document.getElementById("body")) {
+            const b = document.getElementById("body");
+            const A = {
+              x: +b.dataset.x,
+              y: +b.dataset.y,
+              rot: +b.dataset.rot || 0,
+            };
+            const dump = {};
+            ["head", "tail", "leash", "ball"].forEach((id) => {
+              const el = document.getElementById(id);
+              const rel = toBody(A, {
+                x: +el.dataset.x,
+                y: +el.dataset.y,
+                rot: +el.dataset.rot || 0,
+              });
+              dump[id] = {
+                dx: Math.round(rel.dx),
+                dy: Math.round(rel.dy),
+                drot: Math.round(rel.drot),
+              };
+            });
+            console.log("REL =", JSON.stringify(dump, null, 2));
+            alert("REL выведен в консоль (F12). Скопируй при необходимости.");
+          }
+
+          /* Сброс к начальному состоянию: снимаем фиксации и возвращаем стартовые позиции */
+          if (e.key.toLowerCase() === "r") {
+            badge.style.display = "none";
+            board.classList.remove("done");
+            ["body", "head", "tail", "leash", "ball"].forEach((id, i) => {
+              const el = document.getElementById(id);
+              el.classList.remove("locked", "tail-wag", "ball-bounce");
+              place(el, start[i].x, start[i].y, start[i].rot);
+            });
+            anchor = null;
+            selected = null;
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

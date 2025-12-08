@@ -1,0 +1,385 @@
+/* Базовая цветовая палитра сайта через CSS-переменные */
+:root {
+  --bg: #0b1220;
+  --surface: #0f1b36;
+  --text: #eaf2ff;
+  --muted: #b7c8e8;
+  --accent: #4f8cff; /* синий акцент */
+  --accent-2: #9fd7ff; /* светло-голубой акцент */
+  --border: #203457;
+}
+
+/* Базовые сбросы и типографика */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  /* Фоновая виньетка для глубины */
+  background: radial-gradient(1200px 800px at 80% -10%, #122449 0%, #0b1220 60%) no-repeat fixed;
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Ограничивающий контейнер страницы */
+.container {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+}
+
+/* Шапка сайта: липкая, полупрозрачная, с грид-раскладкой */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  backdrop-filter: saturate(160%) blur(8px);
+  background: linear-gradient(180deg, rgba(15, 27, 54, 0.9), rgba(15, 27, 54, 0.75));
+  border-bottom: 1px solid var(--border);
+}
+
+/* Брендовая ссылка (логотип + текст) */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.brand-text {
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+/* Абстрактный CSS-логотип в шапке */
+.abstract-logo {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #4f8cff, #2244c7);
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Центральный знак вопроса */
+.abstract-logo .question {
+  font-size: 35px;
+  font-weight: 700;
+  color: white;
+  text-shadow:
+    0 3px 8px rgba(0,0,0,0.35),
+    0 0 2px rgba(255,255,255,0.7);
+  z-index: 10;
+}
+/* Декоративные элементы логотипа (кольцо и дуги) */
+.abstract-logo::before,
+.abstract-logo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  border-radius: 50%;
+  animation: rotate 6s linear infinite;
+}
+.abstract-logo::before { /* внешнее полупрозрачное кольцо */
+  width: 58px;
+  height: 58px;
+  border: 3px solid rgba(255,255,255,0.65);
+  animation-duration: 7s;
+}
+.abstract-logo::after { /* диагональные дуги внутри */
+  width: 36px;
+  height: 36px;
+  border: 4px solid transparent;
+  border-top-color: rgba(255,255,255,0.9);
+  border-left-color: rgba(255,255,255,0.9);
+  transform: rotate(45deg);
+}
+/* Непрерывное вращение декоративных элементов */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Основное меню (горизонтальный список ссылок) */
+.site-nav ul {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.site-nav a {
+  display: inline-flex;
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.site-nav a:hover,
+.site-nav a:focus {
+  background: #1e2231;
+  border-color: var(--border);
+}
+.site-nav a.active {
+  background: #1a1f2c;
+  border-color: var(--border);
+}
+
+/* Кнопка «бургер» для мобильной навигации */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 0;
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+.nav-toggle .bar {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--text);
+  margin: 5px 0;
+}
+
+/* Доступность: скрытая ссылка «К содержанию» для клавиатуры */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: #000;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}
+
+/* Герой-секция: текст + картинка, двухколоночная сетка */
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 3rem 0;
+}
+.hero-text h1 {
+  margin-top: 0;
+  font-size: clamp(1.8rem, 1.2rem + 2vw, 3rem);
+  line-height: 1.15;
+}
+.hero-text p { color: var(--muted); }
+.hero-art { margin: 0; }
+.hero-art img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+}
+
+/* Утилитарные грид-сетки для секций */
+.grid.two {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+.grid.three {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+.grid.four {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Боковые карточки/виджеты */
+.aside-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+.checklist { padding-left: 1rem; }
+.checklist li { margin: 0.25rem 0; }
+.aside-figure { margin: 1rem 0 0; }
+.aside-figure img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Карточка-фича (изображение + рамка) */
+.feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+}
+.feature img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  background: #0b1220;
+}
+
+/* Призыв к действию (CTA) с лёгкой подсветкой */
+.cta {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  margin: 2rem 0 3rem;
+  background:
+    radial-gradient(500px 300px at 50% 0, rgba(122, 162, 255, 0.15), transparent),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* Вступительная секция на внутренних страницах */
+.page-intro { padding: 2rem 0 1rem; }
+
+/* Карточки списка заданий/проектов */
+.cards .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.cards .card h3 { margin-top: 0; }
+.cards .card .btn { margin-top: 0.25rem; }
+
+/* Таймлайн/вехи */
+.timeline {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+.milestone {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  position: relative;
+}
+/* Точка-маркер у вехи с «свечение» */
+.milestone::before {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 1rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(122, 162, 255, 0.25);
+}
+
+/* Галерея изображений с подписью */
+.gallery .gallery-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.gallery figcaption {
+  padding: 0.6rem 0.8rem;
+  color: var(--muted);
+}
+
+/* Футер сайта */
+.site-footer {
+  border-top: 1px solid var(--border);
+  background: #10131c;
+  margin-top: 3rem;
+}
+/* Светлая тема футера (если переключится тема сайта) */
+:root.theme-light .site-footer { background: #fafbfe; }
+.site-footer .footer-inner {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+.footer-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-right: 0.75rem;
+}
+.footer-nav a:hover { color: var(--text); }
+.copy { color: var(--muted); }
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #1a1f2c;
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+.btn:hover { filter: brightness(1.05); }
+.btn-accent { /* акцентная кнопка с градиентом */
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+  color: #0b1220;
+  font-weight: 700;
+}
+.btn-outline { background: transparent; }
+
+/* Адаптивность: перестройки сеток и навигации */
+@media (max-width: 960px) {
+  .grid.two { grid-template-columns: 1fr; }
+  .grid.three { grid-template-columns: repeat(2, 1fr); }
+  .hero { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .site-header { grid-template-columns: auto auto auto; }
+  .site-nav { display: none; grid-column: 1/-1; } /* меню скрыто, раскроется через .open */
+  .site-nav.open { display: block; }
+  .site-nav ul { flex-direction: column; padding: 0.5rem 0; }
+  .nav-toggle { display: inline-block; } /* показать бургер */
+  .grid.three { grid-template-columns: 1fr; }
+  .grid.four { grid-template-columns: 1fr 1fr; }
+}
+
+/* Фокусы по доступности для ссылок и кнопок */
+a:focus, button:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}

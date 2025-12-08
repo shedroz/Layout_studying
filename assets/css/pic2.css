@@ -1,0 +1,147 @@
+/* Холст-контейнер */
+.pic {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #cfcfd4;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f5fbff 0%, #d1e8ff 40%, #8ab7ff 100%);
+}
+
+/* Солнце */
+.pic.v4 .sun {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  left: 12px;
+  top: 12px;
+  background: radial-gradient(#ffeaa0 40%, #ffd36a 41% 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(255, 234, 160, 0.35);
+}
+
+/* Арки на заднем плане:
+   рисуются за счёт толстой рамки, у которой убрана нижняя сторона,
+   и большого скругления верхних углов (получается полуокружность). */
+.pic.v4 .arch {
+  position: absolute;
+  bottom: 44px;
+  width: 52px;
+  height: 130px;
+  border: 8px solid #b9c3cf;
+  border-bottom: 0;
+  border-radius: 70px 70px 0 0;
+  opacity: 0.95;
+}
+/* Три арки с разными горизонтальными смещениями. */
+.pic.v4 .arch.a1 {
+  left: 0px;
+}
+.pic.v4 .arch.a2 {
+  left: 65px;
+}
+.pic.v4 .arch.a3 {
+  left: 130px;
+}
+
+.pic.v4 .arch.a4 {
+  left: 150px;
+}
+
+/* Блок лодки как локальный контейнер для мачты, паруса, флага и корпуса. */
+.pic.v4 .boat {
+  position: absolute;
+  left: 58px;
+  bottom: 60px;
+  width: 90px;
+  height: 90px;
+}
+
+/* Мачта */
+.pic.v4 .boat .mast {
+  position: absolute;
+  left: 28px;
+  bottom: 22px;
+  width: 5px;
+  height: 76px;
+  background: #8b6a3b;
+  border-radius: 2px;
+}
+
+/* Парус */
+.pic.v4 .boat .sail {
+  position: absolute;
+  left: 33px;
+  bottom: 22px;
+  width: 62px;
+  height: 64px;
+  background: #a6ecff;
+  clip-path: polygon(0 100%, 0 0, 100% 50%);
+  box-shadow: inset -6px -8px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* Флаг */
+.pic.v4 .boat .flag {
+  position: absolute;
+  left: 29px;
+  bottom: 95px;
+  width: 18px;
+  height: 12px;
+  background: #e85252;
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+  transform: translateY(-2px) rotate(180deg);
+}
+
+.pic.v4 .sun {
+  left: -12px;
+  top: -12px;
+}
+
+/* Корпус лодки */
+.pic.v4 .boat .hull {
+  position: absolute;
+  bottom: 0;
+  left: -2px;
+  width: 80px;
+  height: 26px;
+  background: #9a7a4b;
+  border-radius: 0 0 8px 8px;
+  transform: skewX(-10deg);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15), inset 0 -6px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* Волны*/
+.pic.v4 .wave {
+  position: absolute;
+  width: 80px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at -20% -20%,
+    #eaf6ff 0%,
+    #8fb7ff 45%,
+    #1e3f7b 100%
+  );
+}
+
+.pic.v4 .wave.w1 {
+  left: -28px;
+  bottom: -28px;
+}
+.pic.v4 .wave.w2 {
+  left: 12px;
+  bottom: -10px;
+}
+.pic.v4 .wave.w3 {
+  left: 55px;
+  bottom: -28px;
+}
+.pic.v4 .wave.w4 {
+  left: 95px;
+  bottom: -14px;
+}
+.pic.v4 .wave.w5 {
+  left: 132px;
+  bottom: -24px;
+}

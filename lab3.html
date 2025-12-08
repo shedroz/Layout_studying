@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Лабораторная 3 — Flexbox (Вариант 4)</title>
+    <a
+      href="/index.html"
+      class="brand"
+      aria-label="DrozdovaLayout — на главную"
+    >
+      <!-- CSS-только логотип (абстрактный блок с «?»), без изображений -->
+      <div class="abstract-logo">
+        <span class="question">?</span>
+      </div>
+      <span class="brand-text">DrozdovaLayout</span>
+    </a>
+    <!-- общий стиль сайта -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <style>
+      .flex-wrapper {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+
+      .flex-tile {
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid var(--border, #203457);
+        background: #0e1528;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        user-select: none;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+      }
+
+      /* слои */
+      .flex-tile img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+      }
+      /* фон */
+      .flex-tile .bg {
+        z-index: 0;
+      }
+      /* кастрюля */
+      .flex-tile .pot {
+        z-index: 1;
+        opacity: 0;
+        transform: scale(0.88);
+      }
+
+      /* (3) ховер по кастрюле: проявляется, увеличивается, затем немного уменьшается */
+      .flex-tile:hover .pot {
+        animation: pot-appear 1.6s ease forwards;
+      }
+      @keyframes pot-appear {
+        0% {
+          opacity: 0;
+          transform: scale(0.88);
+        }
+        60% {
+          opacity: 1;
+          transform: scale(1.12);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* крышка — скрыта по умолчанию; видна и «хлопает» только пока .pressed */
+      .flex-tile .lid {
+        z-index: 2;
+        width: 72%;
+        height: auto;
+        top: 2.8%;
+        left: 45.5%;
+        /* шарнир почти у правого края */
+        transform-origin: 98% 58%;
+
+        /* закрытое положение с небольшой компенсацией угла (поднимет левый край) */
+        --lid-closed-rot: -1.5deg;
+        transform: translate(-50%, -6%) rotate(var(--lid-closed-rot));
+
+        opacity: 0; /* скрыта по умолчанию */
+        pointer-events: none;
+      }
+      /* при удержании — видна и выполняет цикл открылась → закрылась → пауза внизу */
+      .flex-tile:active .lid {
+        opacity: 1;
+        animation: lid-flap 3.5s cubic-bezier(0.25, 0.6, 0.35, 1) infinite;
+      }
+
+      /* открылась (−35°) → вернулась в 0° с компенсацией → пауза внизу */
+      @keyframes lid-flap {
+        0% {
+          transform: translate(-50%, -6%) rotate(var(--lid-closed-rot));
+        } /* закрыто */
+        30% {
+          transform: translate(-50%, -11%) rotate(-35deg);
+        } /* открыто слева */
+        60% {
+          transform: translate(-50%, -6%) rotate(var(--lid-closed-rot));
+        } /* закрыто */
+        100% {
+          transform: translate(-50%, -6%) rotate(var(--lid-closed-rot));
+        } /* пауза внизу (~2с) */
+      }
+      /* надписи */
+      /* верхняя надпись — по умолчанию скрыта */
+      .caption-top {
+        position: absolute;
+        z-index: 3;
+        top: 6px;
+        left: 8px;
+        right: 8px;
+        padding: 4px 8px;
+        color: #111;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 6px;
+        text-align: center;
+        font-weight: 400;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        display: none; /* <-- скрыта базово */
+      }
+
+      /* Появляется только при наведении мыши на картинку */
+      .flex-tile:hover .caption-top {
+        display: block;
+      }
+
+      /* Во время удержания (нажатия) надпись всегда скрыта,
+   даже если курсор остаётся наведён */
+      .flex-tile:active .caption-top {
+        display: none;
+      }
+
+      .side-label {
+        position: absolute;
+        z-index: 3;
+        left: 6px;
+        top: 8px;
+        bottom: 8px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #e53935;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+
+        /* Поворот на 180° */
+        transform: rotate(180deg);
+        transform-origin: 50% 50%;
+      }
+
+      /* показывать боковую красную надпись только пока нажато */
+      .flex-tile:active .side-label {
+        display: flex;
+      }
+      .flex-tile:active {
+        animation: shake-x 0.6s ease;
+      }
+      @keyframes shake-x {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-3px);
+        }
+        40% {
+          transform: translateX(3px);
+        }
+        60% {
+          transform: translateX(-2px);
+        }
+        80% {
+          transform: translateX(2px);
+        }
+      }
+
+      .flex-tile:focus-visible {
+        outline: 2px solid var(--accent, #4f8cff);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">К содержанию</a>
+
+    <header class="site-header">
+      <a href="index.html" class="brand" aria-label="На главную">
+        <span class="css-logo" aria-hidden="true"></span>
+        <span class="brand-text">DrozdovaLayout</span>
+      </a>
+      <nav class="site-nav" aria-label="Основное меню">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="assignments.html" class="active">Задания</a></li>
+          <li><a href="course.html">Курсовая</a></li>
+          <li><a href="gallery.html">Галерея</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="container" id="main">
+      <main>
+        <section class="page-intro">
+          <h1>Лабораторная 3 — Flexbox (Вариант 4)</h1>
+          <p>
+            Наведи: кастрюля медленно проявляется и «дышит». Нажми/удерживай:
+            верхняя надпись скрывается, слева — «Жаропрочная посуда», крышка
+            хлопает. Отпусти: крышка исчезает, верхняя надпись возвращается.
+          </p>
+        </section>
+
+        <section class="flex-wrapper">
+          <div
+            class="flex-tile"
+            id="cookware"
+            role="button"
+            tabindex="0"
+            aria-label="Набор посуды: Магазин «Поварёнок»"
+          >
+            <img class="bg" src="assets/img/ware2.jpg" alt="" />
+            <img class="pot" src="assets/img/ware3.png" alt="Кастрюля" />
+            <img class="lid" src="assets/img/ware4.png" alt="Крышка" />
+
+            <div class="caption-top">Магазин «Поварёнок»</div>
+            <div class="side-label">Жаропрочная посуда</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="css-logo css-logo--sm" aria-hidden="true"></span>
+          <strong>DrozdovaLayout</strong>
+        </div>
+        <nav class="footer-nav" aria-label="Нижнее меню">
+          <a href="index.html">Главная</a>
+          <a href="assignments.html">Задания</a>
+          <a href="course.html">Курсовая</a>
+          <a href="gallery.html">Галерея</a>
+        </nav>
+        <div class="copy">© 2025 DrozdovaLayout</div>
+      </div>
+    </footer>
+  </body>
+</html>
