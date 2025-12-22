@@ -1,7 +1,6 @@
 const DifficultyConfig = {
   easy: {
     timeLimit: 80,
-    questionsPerLevel: 2,
     scoreMultiplier: 1.2,
     penaltyMultiplier: 0.5,
     fallSpeed: 1,
@@ -11,7 +10,6 @@ const DifficultyConfig = {
   },
   medium: {
     timeLimit: 60,
-    questionsPerLevel: 3,
     scoreMultiplier: 1,
     penaltyMultiplier: 1,
     fallSpeed: 2,
@@ -21,7 +19,6 @@ const DifficultyConfig = {
   },
   hard: {
     timeLimit: 40,
-    questionsPerLevel: 4,
     scoreMultiplier: 0.8,
     penaltyMultiplier: 1.5,
     fallSpeed: 3,
@@ -30,6 +27,53 @@ const DifficultyConfig = {
     questionsPerLevel: 5,
   },
 };
+
+const RareEventsConfig = {
+  chance: 0.1,
+  freezeDuration: 3000,
+
+  baseGoldBonus: 20,
+  baseTrapPenalty: 10,
+};
+
+function getRandomRareEvent() {
+  if (Math.random() > RareEventsConfig.chance) return null;
+
+  const events = ["gold", "freeze", "trap"];
+  return events[Math.floor(Math.random() * events.length)];
+}
+
+function triggerFreeze() {
+  Game.state.isFrozen = true;
+  showEventMessage("❄ Все элементы заморожены!");
+
+  setTimeout(() => {
+    Game.state.isFrozen = false;
+  }, RareEventsConfig.freezeDuration);
+}
+
+function showEventMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "event-toast";
+  msg.innerText = text;
+  document.body.appendChild(msg);
+
+  setTimeout(() => msg.remove(), 2000);
+}
+
+function getGoldBonus() {
+  const cfg = Game.state.difficultyConfig || DifficultyConfig.medium;
+  return Math.round(
+    RareEventsConfig.baseGoldBonus * cfg.scoreMultiplier
+  );
+}
+
+function getTrapPenalty() {
+  const cfg = Game.state.difficultyConfig || DifficultyConfig.medium;
+  return Math.round(
+    RareEventsConfig.baseTrapPenalty * cfg.penaltyMultiplier
+  );
+}
 
 const Game = {
   state: {
@@ -45,6 +89,8 @@ const Game = {
     level2QuestionsQueue: [],
     level3WordsQueue: [],
     isGameOver: false,
+    useTimer: true,
+    isFrozen: false,
   },
 
   difficultyLabels: {
@@ -81,6 +127,7 @@ const Game = {
       const difficulty = document.getElementById("difficulty-select").value;
       this.state.difficulty = difficulty;
       this.state.difficultyConfig = DifficultyConfig[difficulty];
+      this.state.useTimer = document.getElementById("use-timer").checked;
 
       this.config.timeLimit = this.state.difficultyConfig.timeLimit;
       this.config.questionsPerLevel =
@@ -108,6 +155,14 @@ const Game = {
       "hud-progress"
     ).innerText = `0 / ${this.config.questionsPerLevel}`;
 
+    if (this.state.useTimer) {
+      this.state.timeLeft = this.config.timeLimit;
+      document.getElementById("hud-time").innerText = this.state.timeLeft;
+      this.startTimer();
+    } else {
+      // если таймера нет — убираем отображение
+      document.getElementById("hud-time").innerText = "∞";
+    }
     document.getElementById("hud-level").innerText = level;
     document.getElementById("hud-name").innerText = this.state.playerName;
 
@@ -143,6 +198,7 @@ const Game = {
   nextTask() {
     const gameArea = document.getElementById("game-area");
     const taskText = document.getElementById("task-description");
+    const rareEvent = getRandomRareEvent();
 
     // Проверка завершения уровня
     if (this.state.subLevelCount >= this.config.questionsPerLevel) {
@@ -167,7 +223,8 @@ const Game = {
         gameArea,
         q,
         (points, success) => this.addScore(points, success),
-        (points) => this.addScore(-points, false)
+        (points) => this.addScore(-points, false),
+        rareEvent
       );
     } else if (this.state.currentLevel === 2) {
       const q = this.state.level2QuestionsQueue[this.state.subLevelCount];
@@ -175,8 +232,9 @@ const Game = {
       Mechanics.initLevel2(
         gameArea,
         q,
-        (points) => this.addScore(points, true),
-        (points) => this.addScore(-points, false)
+        (points, success) => this.addScore(points, success),
+        (points) => this.addScore(-points, false),
+        rareEvent
       );
     } else if (this.state.currentLevel === 3) {
       if (this.state.level3WordsQueue.length === 0) {
@@ -190,8 +248,9 @@ const Game = {
       Mechanics.initLevel3(
         gameArea,
         word,
-        (points) => this.addScore(points, true),
-        (points) => this.addScore(-points, false)
+        (points, success) => this.addScore(points, success),
+        (points) => this.addScore(-points, false),
+        rareEvent
       );
     }
   },
@@ -234,6 +293,7 @@ const Game = {
   },
 
   startTimer() {
+    if (!this.state.useTimer) return;
     if (this.state.timerId) clearInterval(this.state.timerId);
 
     this.state.timerId = setInterval(() => {
