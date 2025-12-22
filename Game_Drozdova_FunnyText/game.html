@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Курсовая: Веселый Текст</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <section id="screen-start" class="screen active">
+      <h1>Веселый Текст</h1>
+      <div class="form-group">
+        <input
+          type="text"
+          id="username"
+          placeholder="Введите ваше имя"
+          maxlength="15"
+        />
+      </div>
+      <div class="form-group">
+        <label>Сложность:</label>
+        <select id="difficulty-select">
+          <option value="easy">Лёгкий</option>
+          <option value="medium" selected>Средний</option>
+          <option value="hard">Сложный</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Тема:</label>
+        <select id="theme-select">
+          <option value="light">Светлая</option>
+          <option value="dark">Темная</option>
+          <option value="warm">Теплая</option>
+        </select>
+      </div>
+      <button id="btn-start">Начать игру</button>
+      <button id="btn-leaders" class="secondary-btn">Таблица лидеров</button>
+
+      <div class="rules">
+        <p>Ур.1: Двойной клик по правильным словам.</p>
+        <p>Ур.2: Перетащи (Drag & Drop) элементы в зону.</p>
+        <p>Ур.3: Успей напечатать слово (Клавиатура).</p>
+      </div>
+    </section>
+    <section id="screen-leaders" class="screen">
+      <h2>🏆 Таблица лидеров</h2>
+
+      <ul id="rating-list-leaders"></ul>
+
+      <button onclick="Game.showScreen('screen-start')">Назад</button>
+      <button id="btn-clear-rating" class="danger-btn">Очистить рейтинг</button>
+    </section>
+    <section id="screen-game" class="screen">
+      <div class="hud">
+        <span>Игрок: <b id="hud-name">User</b></span>
+        <span>Уровень: <b id="hud-level">1</b></span>
+        <span>Задание: <b id="hud-progress">0 / 0</b></span>
+        <span>Сложность: <b id="hud-difficulty">Лёгкая</b></span>
+        <span>Счет: <b id="hud-score">0</b></span>
+        <span>Время: <b id="hud-time">0</b> сек</span>
+      </div>
+
+      <div id="task-description">Задание появится здесь</div>
+
+      <div id="game-area"></div>
+
+      <div class="controls">
+        <button onclick="Game.finishLevel()">Завершить уровень досрочно</button>
+        <button class="debug-btn" onclick="Game.debugSkipLevel()">
+          [DEBUG: Skip Level]
+        </button>
+      </div>
+    </section>
+
+    <section id="screen-result" class="screen">
+      <h2>Игра окончена!</h2>
+      <p>Ваш счет: <span id="final-score">0</span></p>
+
+      <h3>Таблица рекордов</h3>
+      <ul id="rating-list-final"></ul>
+
+      <button onclick="location.reload()">Играть заново</button>
+    </section>
+
+    <script src="js/data.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/mechanics.js"></script>
+    <script src="js/game.js"></script>
+  </body>
+</html>

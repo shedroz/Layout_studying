@@ -1,0 +1,117 @@
+const GameData = {
+  // Уровень 1: Поиск по признаку (Double Click)
+  level1: {
+    questions: [
+      { text: "Найди всех с 4 ногами (Двойной клик!)", type: "4legs" },
+      { text: "Найди всех, кто умеет летать (Двойной клик!)", type: "fly" },
+      { text: "Кто живёт в воде?", type: "swim" },
+      { text: "Найди всех домашних животных", type: "domestic" },
+      { text: "Найди все объекты, созданные человеком", type: "object" },
+      { text: "Найди всех насекомых", type: "insect" },
+    ],
+    items: [
+      { name: "Кошка", tags: ["animal", "4legs", "domestic"] },
+      { name: "Собака", tags: ["animal", "4legs", "domestic"] },
+      { name: "Корова", tags: ["animal", "4legs"] },
+      { name: "Лошадь", tags: ["animal", "4legs"] },
+      { name: "Тигр", tags: ["animal", "4legs"] },
+      { name: "Слон", tags: ["animal", "4legs"] },
+      { name: "Воробей", tags: ["animal", "fly"] },
+      { name: "Орел", tags: ["animal", "fly"] },
+      { name: "Голубь", tags: ["animal", "fly"] },
+      { name: "Курица", tags: ["animal"] },
+      { name: "Бабочка", tags: ["animal", "fly", "insect"] },
+      { name: "Пчела", tags: ["animal", "fly", "insect"] },
+      { name: "Муравей", tags: ["animal", "insect"] },
+      { name: "Рыба", tags: ["animal", "swim"] },
+      { name: "Дельфин", tags: ["animal", "swim"] },
+      { name: "Осьминог", tags: ["animal", "swim"] },
+      { name: "Змея", tags: ["animal"] },
+      { name: "Ящерица", tags: ["animal", "4legs"] },
+      { name: "Стол", tags: ["object", "4legs"] },
+      { name: "Кресло", tags: ["object", "4legs"] },
+      { name: "Самолет", tags: ["object", "fly"] },
+      { name: "Дрон", tags: ["object", "fly"] },
+      { name: "Подводная лодка", tags: ["object", "swim"] },
+      { name: "Дракон", tags: ["fly"] },
+      { name: "Единорог", tags: ["4legs"] },
+    ],
+  },
+
+  // Уровень 2: Сортировка (Drag & Drop)
+  level2: {
+    questions: [
+      { text: "Перетащи в квадрат только ФРУКТЫ", target: "fruit" },
+      { text: "Перетащи в квадрат только ОВОЩИ", target: "veg" },
+      { text: "Перетащи в квадрат ЧЕТНЫЕ числа", target: "even" },
+      { text: "Перетащи в квадрат НЕЧЕТНЫЕ числа", target: "odd" },
+      { text: "Перетащи в квадрат только ЕДУ", target: "food" },
+      { text: "Перетащи в квадрат ТОЛЬКО ЧИСЛА", target: "number" },
+    ],
+
+    items: [
+      { name: "Яблоко", type: "fruit", tags: ["food"] },
+      { name: "Банан", type: "fruit", tags: ["food"] },
+      { name: "Груша", type: "fruit", tags: ["food"] },
+      { name: "Апельсин", type: "fruit", tags: ["food"] },
+
+      { name: "Морковь", type: "veg", tags: ["food"] },
+      { name: "Огурец", type: "veg", tags: ["food"] },
+      { name: "Картофель", type: "veg", tags: ["food"] },
+      { name: "Томат", type: "veg", tags: ["food"] },
+
+      { name: "1", type: "odd", tags: ["number"] },
+      { name: "2", type: "even", tags: ["number"] },
+      { name: "3", type: "odd", tags: ["number"] },
+      { name: "4", type: "even", tags: ["number"] },
+      { name: "5", type: "odd", tags: ["number"] },
+      { name: "6", type: "even", tags: ["number"] },
+
+      { name: "Стул", type: "object", tags: [] },
+      { name: "Самолёт", type: "object", tags: [] },
+    ],
+  },
+
+  // Уровень 3: Клавиатурный тренажер (Keyboard)
+  level3: {
+    words: [
+      // короткие
+      "код",
+      "игра",
+      "текст",
+      "план",
+      "курс",
+      "ввод",
+      "выход",
+      // средние
+      "экзамен",
+      "джава",
+      "скрипт",
+      "уровень",
+      "финиш",
+      "ошибка",
+      "логика",
+      "кнопка",
+      "форма",
+      "массив",
+      // длинные
+      "программа",
+      "переменная",
+      "алгоритм",
+      "компиляция",
+      "интерфейс",
+      "разработка",
+      "приложение",
+      "обработка",
+      "проверка",
+      "результат",
+      "задание",
+      "ответ",
+      "таймер",
+      "скорость",
+      "баллы",
+      "уровни",
+      "сложность",
+    ],
+  },
+};
