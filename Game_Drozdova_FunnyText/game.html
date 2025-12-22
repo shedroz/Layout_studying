@@ -5,6 +5,25 @@
     <title>Курсовая: Веселый Текст</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
+  <script src="js/modal.js"></script>
+  <script src="js/music.js"></script>
+
+  <div id="music-player">
+    <button id="music-toggle" class="play"></button>
+    <input
+      type="range"
+      id="music-volume"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.4"
+    />
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="audio/background.mp3" type="audio/mpeg" />
+  </audio>
+
   <body>
     <section id="screen-start" class="screen active">
       <h1>Веселый Текст</h1>
@@ -24,6 +43,11 @@
           <option value="hard">Сложный</option>
         </select>
       </div>
+      <label class="timer-option">
+        <input type="checkbox" id="use-timer" checked />
+        <span class="custom-checkbox"></span>
+        <span class="timer-text">Играть с таймером</span>
+      </label>
 
       <div class="form-group">
         <label>Тема:</label>
@@ -35,13 +59,73 @@
       </div>
       <button id="btn-start">Начать игру</button>
       <button id="btn-leaders" class="secondary-btn">Таблица лидеров</button>
-
-      <div class="rules">
-        <p>Ур.1: Двойной клик по правильным словам.</p>
-        <p>Ур.2: Перетащи (Drag & Drop) элементы в зону.</p>
-        <p>Ур.3: Успей напечатать слово (Клавиатура).</p>
-      </div>
+      <button class="secondary-btn" id="btn-rules">Правила игры</button>
     </section>
+    <div id="rules-modal" class="modal hidden">
+      <div class="modal-overlay"></div>
+
+      <div class="modal-content">
+        <button class="modal-close">&times;</button>
+
+        <h2>📘 Правила игры «Весёлый текст»</h2>
+
+        <h3>🎮 Общие правила</h3>
+        <ul>
+          <li>Игра состоит из <b>3 уровней</b> с разными механиками.</li>
+          <li>Сложность влияет на скорость, количество заданий и очки.</li>
+          <li>Ошибки уменьшают счёт.</li>
+          <li>Игра заканчивается, если счёт опускается ниже <b>–50</b>.</li>
+        </ul>
+
+        <h3>⏱️ Таймер</h3>
+        <ul>
+          <li>Можно играть с таймером или без него.</li>
+          <li>При включённом таймере время ограничено для каждого уровня.</li>
+          <li>Если время вышло — игра завершается.</li>
+        </ul>
+
+        <h3>🧩 Уровни</h3>
+        <ul>
+          <li><b>Уровень 1:</b> двойной клик по правильным словам.</li>
+          <li><b>Уровень 2:</b> перетаскивание подходящих элементов в зону.</li>
+          <li><b>Уровень 3:</b> печать слов до того, как они упадут.</li>
+        </ul>
+        <h3>📊 Баллы и таймер по уровням сложности</h3>
+
+        <table class="rules-table">
+          <thead>
+            <tr>
+              <th>Сложность</th>
+              <th>Таймер на уровень</th>
+              <th>Бонус за правильное действие</th>
+              <th>Штраф за ошибку</th>
+            </tr>
+          </thead>
+          <tbody id="rules-table-body"></tbody>
+        </table>
+        <div class="rules-section">
+          <h3>🧠 Игровые фичи и события</h3>
+
+          <table class="rules-table">
+            <thead>
+              <tr>
+                <th>Фича</th>
+                <th>Описание</th>
+                <th>Эффект</th>
+                <th>Особенности</th>
+              </tr>
+            </thead>
+            <tbody id="rules-features-table"></tbody>
+          </table>
+        </div>
+
+        <h3>🏆 Рейтинг</h3>
+        <ul>
+          <li>Результаты сохраняются в таблице лидеров.</li>
+          <li>Текущий результат игрока подсвечивается.</li>
+        </ul>
+      </div>
+    </div>
     <section id="screen-leaders" class="screen">
       <h2>🏆 Таблица лидеров</h2>
 

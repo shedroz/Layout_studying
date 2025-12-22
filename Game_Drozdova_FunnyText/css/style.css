@@ -15,7 +15,6 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-
 /* =========================
    THEMES
 ========================= */
@@ -34,7 +33,6 @@ body.theme-dark #rating-list-final li,
 body.theme-dark #rating-list-leaders li {
   color: #020617; /* почти чёрный */
 }
-
 
 body.theme-warm {
   background: linear-gradient(120deg, #fff7ed, #ffedd5);
@@ -144,10 +142,15 @@ body.theme-dark .rules {
   font-weight: 600;
 }
 
-.hud b.difficulty-easy   { color: #22c55e; }
-.hud b.difficulty-medium { color: #f59e0b; }
-.hud b.difficulty-hard   { color: #ef4444; }
-
+.hud b.difficulty-easy {
+  color: #22c55e;
+}
+.hud b.difficulty-medium {
+  color: #f59e0b;
+}
+.hud b.difficulty-hard {
+  color: #ef4444;
+}
 
 /* =========================
    TASK DESCRIPTION
@@ -245,9 +248,15 @@ body.theme-dark #game-area {
   cursor: grabbing;
 }
 
-.difficulty-easy   { color: #22c55e; }
-.difficulty-medium { color: #f59e0b; }
-.difficulty-hard   { color: #ef4444; }
+.difficulty-easy {
+  color: #22c55e;
+}
+.difficulty-medium {
+  color: #f59e0b;
+}
+.difficulty-hard {
+  color: #ef4444;
+}
 
 /* =========================
    CONTROLS
@@ -389,4 +398,357 @@ body.theme-dark #rating-list li {
 .danger-btn {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   margin-top: 12px;
+}
+
+/* =========================
+   CUSTOM CHECKBOX (TIMER)
+========================= */
+
+.timer-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* прячем нативный чекбокс */
+.timer-option input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* сам кастомный квадратик */
+.custom-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+
+  background: white;
+  border: 2px solid #6366f1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease;
+}
+
+/* галочка */
+.custom-checkbox::after {
+  content: "";
+  width: 10px;
+  height: 6px;
+  border-left: 3px solid white;
+  border-bottom: 3px solid white;
+  transform: rotate(-45deg) scale(0);
+  transition: transform 0.15s ease;
+}
+
+/* состояние checked */
+.timer-option input:checked + .custom-checkbox {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border-color: #4f46e5;
+}
+
+.timer-option input:checked + .custom-checkbox::after {
+  transform: rotate(-45deg) scale(1);
+}
+
+/* hover */
+.timer-option:hover .custom-checkbox {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* dark theme */
+body.theme-dark .custom-checkbox {
+  background: #020617;
+  border-color: #818cf8;
+}
+
+/* =========================
+   MODAL RULES
+========================= */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  position: relative;
+  max-width: 640px;
+  max-height: 80vh;
+  margin: 60px auto;
+  padding: 28px 32px;
+
+  background: white;
+  border-radius: 18px;
+  overflow-y: auto;
+
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+}
+
+body.theme-dark .modal-content {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modal-content h3 {
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.modal-content ul {
+  padding-left: 20px;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.modal-content li {
+  margin-bottom: 6px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.modal-close:hover {
+  color: #ef4444;
+}
+
+/* =========================
+   RULES TABLE
+========================= */
+
+.rules-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.rules-table th,
+.rules-table td {
+  padding: 10px 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.rules-table thead th {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  font-weight: 600;
+}
+
+.rules-table tbody tr {
+  background: #f1f5f9;
+}
+
+.rules-table tbody tr:not(:last-child) {
+  border-bottom: 6px solid transparent;
+}
+
+body.theme-dark .rules-table tbody tr {
+  background: #020617;
+}
+
+.rules-table td:first-child {
+  font-weight: 600;
+}
+
+.rules-table .difficulty-easy {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.rules-table .difficulty-medium {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.rules-table .difficulty-hard {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.rules-table .points-plus {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.rules-table .points-minus {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.gold-item {
+  background: linear-gradient(135deg, #fde047, #facc15);
+  color: #422006;
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
+}
+
+.trap-item {
+  background: linear-gradient(135deg, #7c2d12, #dc2626);
+  color: white;
+}
+
+/* =========================
+   EVENT TOAST
+========================= */
+
+.event-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 12px 20px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+
+  z-index: 2000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+  animation: toastFade 2s ease forwards;
+}
+
+@keyframes toastFade {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+}
+
+/* ===== MUSIC PLAYER ===== */
+
+#music-player {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 12px;
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+}
+
+#music-toggle {
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#music-volume {
+  width: 100px;
+  margin: 0;
+  padding: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+#music-volume::-webkit-slider-runnable-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+#music-volume::-moz-range-track {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+#music-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4f46e5;
+  border-radius: 50%;
+  margin-top: -5px;
+}
+
+#music-volume::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #4f46e5;
+  border-radius: 50%;
+  border: none;
+}
+
+#music-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#music-toggle::before {
+  content: "▶";
+  font-size: 20px;
+}
+
+#music-toggle.pause::before {
+  content: "⏸";
+  font-size: 25px;
 }

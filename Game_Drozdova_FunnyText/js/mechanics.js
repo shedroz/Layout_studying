@@ -1,7 +1,10 @@
 const Mechanics = {
   // === УРОВЕНЬ 1: Двойной клик ===
-  initLevel1(container, questionData, onScore, onMistake) {
+  initLevel1(container, questionData, onScore, onMistake, rareEvent) {
     container.innerHTML = "";
+    if (rareEvent === "freeze") {
+      triggerFreeze();
+    }
 
     const allItems = GameData.level1.items.slice();
 
@@ -37,9 +40,22 @@ const Mechanics = {
       .sort(() => Math.random() - 0.5)
       .slice(0, Math.min(correctCount, correctItems.length));
 
+    let goldItem = null;
+
+    if (rareEvent === "gold" && selectedCorrect.length > 0) {
+      goldItem =
+        selectedCorrect[Math.floor(Math.random() * selectedCorrect.length)];
+    }
+
     const selectedWrong = wrongItems
       .sort(() => Math.random() - 0.5)
       .slice(0, Math.min(wrongCount, wrongItems.length));
+    let trapItem = null;
+
+    if (rareEvent === "trap" && selectedWrong.length > 0) {
+      trapItem =
+        selectedWrong[Math.floor(Math.random() * selectedWrong.length)];
+    }
 
     const items = [...selectedCorrect, ...selectedWrong].sort(
       () => Math.random() - 0.5
@@ -54,6 +70,15 @@ const Mechanics = {
       el.className = "game-item";
       el.innerText = item.name;
 
+      if (rareEvent === "gold" && item === goldItem) {
+        el.classList.add("gold-item");
+        el.dataset.gold = "true";
+      }
+
+      if (rareEvent === "trap" && item === trapItem) {
+        el.dataset.trap = "true";
+      }
+
       el.style.left = Math.random() * 700 + "px";
       el.style.top = Math.random() * 400 + "px";
 
@@ -65,6 +90,18 @@ const Mechanics = {
 
         const isCorrect = item.tags.includes(questionData.type);
 
+        if (el.dataset.trap === "true") {
+          el.dataset.used = "true";
+          el.style.pointerEvents = "none";
+
+          el.classList.add("trap-item", "error-anim");
+
+          onScore(-getTrapPenalty(), false);
+          showEventMessage(`💣 Ловушка! −${RareEventsConfig.trapPenalty}`);
+
+          return;
+        }
+
         if (isCorrect) {
           el.dataset.used = "true";
           el.style.background = "#81C784";
@@ -72,12 +109,16 @@ const Mechanics = {
 
           remainingCorrect--;
           onScore(10, false); // баллы без перехода
+          if (el.dataset.gold === "true") {
+            onScore(getGoldBonus(), false);
+            showEventMessage(`🪙 Золотой бонус +${RareEventsConfig.goldBonus}`);
+          }
 
           // переход ТОЛЬКО когда выбраны ВСЕ
           if (remainingCorrect === 0 && !completed) {
             completed = true;
             setTimeout(() => {
-              onScore(0, true); 
+              onScore(0, true);
             }, 400);
           }
         } else {
@@ -97,6 +138,10 @@ const Mechanics = {
     let dy = (Math.random() - 0.5) * 2 * speed;
     const move = () => {
       if (!document.contains(el)) return;
+      if (Game.state.isFrozen) {
+        requestAnimationFrame(move);
+        return;
+      }
       x += dx;
       y += dy;
       if (x <= 0 || x >= 720) dx = -dx;
@@ -109,7 +154,7 @@ const Mechanics = {
   },
 
   // === УРОВЕНЬ 2: Drag & Drop ===
-  initLevel2(container, questionData, onScore, onMistake) {
+  initLevel2(container, questionData, onScore, onMistake, rareEvent) {
     container.innerHTML = "";
 
     const difficulty = Game.state.difficulty;
@@ -171,12 +216,24 @@ const Mechanics = {
     const selectedCorrect = correctItems
       .sort(() => Math.random() - 0.5)
       .slice(0, Math.min(correctCount, correctItems.length));
+    let goldItem = null;
+
+    if (rareEvent === "gold" && selectedCorrect.length > 0) {
+      goldItem =
+        selectedCorrect[Math.floor(Math.random() * selectedCorrect.length)];
+    }
 
     let remainingCorrect = selectedCorrect.length;
 
     const selectedWrong = wrongItems
       .sort(() => Math.random() - 0.5)
       .slice(0, Math.min(wrongCount, wrongItems.length));
+    let trapItem = null;
+
+    if (rareEvent === "trap" && selectedWrong.length > 0) {
+      trapItem =
+        selectedWrong[Math.floor(Math.random() * selectedWrong.length)];
+    }
 
     const items = [...selectedCorrect, ...selectedWrong].sort(
       () => Math.random() - 0.5
@@ -196,6 +253,13 @@ const Mechanics = {
 
       if (!el || completed) return;
 
+      if (el.dataset.trap === "true") {
+        el.remove();
+        onScore(-getTrapPenalty(), false);
+        showEventMessage(`💣 Ловушка! −${RareEventsConfig.trapPenalty}`);
+        return;
+      }
+
       const isCorrect =
         type === questionData.target || tags.includes(questionData.target);
 
@@ -203,9 +267,16 @@ const Mechanics = {
         el.remove();
         remainingCorrect--;
 
+        if (el.dataset.gold === "true") {
+          onScore(getGoldBonus(), false);
+          showEventMessage(`🪙 Бонус +${RareEventsConfig.goldBonus}`);
+        }
+
         if (remainingCorrect === 0) {
           completed = true;
-          onScore(20); // переход к следующему вопросу
+          setTimeout(() => {
+            onScore(20, true);
+          }, 400); // переход к следующему вопросу
         }
       } else {
         onMistake(10);
@@ -238,6 +309,14 @@ const Mechanics = {
       el.innerText = item.name;
       el.id = "drag-" + index;
       el.draggable = true;
+      if (rareEvent === "trap" && item === trapItem) {
+        el.dataset.trap = "true"; // СКРЫТАЯ ловушка
+      }
+
+      if (rareEvent === "gold" && item === goldItem) {
+        el.classList.add("gold-item");
+        el.dataset.gold = "true";
+      }
 
       el.style.left = positions[index].x + "px";
       el.style.top = positions[index].y + "px";
@@ -258,8 +337,19 @@ const Mechanics = {
   },
 
   // === УРОВЕНЬ 3: Клавиатура и падение ===
-  initLevel3(container, word, onScore, onMistake) {
+  initLevel3(container, word, onScore, onMistake, rareEvent) {
     container.innerHTML = "";
+
+    if (rareEvent === "freeze") {
+      const delay = 2000 + Math.random() * 1000;
+
+      setTimeout(() => {
+        // проверяем, что слово ещё активно
+        if (activeEl && document.contains(activeEl)) {
+          triggerFreeze();
+        }
+      }, delay);
+    }
 
     const input = document.createElement("input");
     input.type = "text";
@@ -281,11 +371,20 @@ const Mechanics = {
       activeEl.innerText = activeWord;
       activeEl.style.left = Math.random() * 600 + "px";
       activeEl.style.top = "-50px";
+
+      // GOLD
+      if (rareEvent === "gold") {
+        activeEl.classList.add("gold-item");
+        activeEl.dataset.gold = "true";
+      }
+
       container.appendChild(activeEl);
 
       let top = -50;
 
       const fall = setInterval(() => {
+        if (Game.state.isFrozen) return;
+
         if (!document.contains(activeEl)) {
           clearInterval(fall);
           return;
@@ -294,6 +393,7 @@ const Mechanics = {
         top += Game.state.difficultyConfig.fallSpeed;
         activeEl.style.top = top + "px";
 
+        // НЕ УСПЕЛ
         if (top > 450) {
           clearInterval(fall);
           activeEl.remove();
@@ -301,10 +401,11 @@ const Mechanics = {
           input.value = "";
 
           onMistake(20);
+          showEventMessage("⏳ Не успел!");
 
-          // запускаем следующий вопрос
+          // вопрос завершён
           setTimeout(() => {
-            onScore(0, false); // без засчёта, но с переходом
+            onScore(0, true);
           }, 300);
         }
       }, 20);
@@ -315,12 +416,26 @@ const Mechanics = {
     input.addEventListener("input", () => {
       if (!activeEl) return;
 
-      if (input.value.toLowerCase().trim() === activeWord) {
+      const value = input.value.toLowerCase().trim();
+
+      // ПРАВИЛЬНЫЙ ВВОД
+      if (value === activeWord) {
         activeEl.remove();
         activeEl = null;
         input.value = "";
 
-        onScore(20, true); // засчитали + следующий вопрос
+        onScore(20, false);
+
+        // GOLD бонус
+        if (rareEvent === "gold") {
+          onScore(getGoldBonus(), false);
+          showEventMessage(`🪙 Золотое слово +${RareEventsConfig.goldBonus}`);
+        }
+
+        // вопрос завершён
+        setTimeout(() => {
+          onScore(0, true);
+        }, 300);
       }
     });
   },
