@@ -1,3 +1,4 @@
+let freezeDelayTimeout = null;
 const Mechanics = {
   // === УРОВЕНЬ 1: Двойной клик ===
   initLevel1(container, questionData, onScore, onMistake, rareEvent) {
@@ -97,7 +98,9 @@ const Mechanics = {
           el.classList.add("trap-item", "error-anim");
 
           onScore(-getTrapPenalty(), false);
-          showEventMessage(`💣 Ловушка! −${RareEventsConfig.trapPenalty}`);
+          const penalty = getTrapPenalty();
+          showEventMessage(`💣 Ловушка! −${penalty}`);
+          explodeAtElement(el, "#ef4444");
 
           return;
         }
@@ -111,7 +114,14 @@ const Mechanics = {
           onScore(10, false); // баллы без перехода
           if (el.dataset.gold === "true") {
             onScore(getGoldBonus(), false);
-            showEventMessage(`🪙 Золотой бонус +${RareEventsConfig.goldBonus}`);
+            const bonus = getGoldBonus();
+            showEventMessage(`🪙 Золотой бонус +${bonus}`);
+
+            scoreExplosion(
+              el.getBoundingClientRect().left,
+              el.getBoundingClientRect().top,
+              "gold"
+            );
           }
 
           // переход ТОЛЬКО когда выбраны ВСЕ
@@ -256,7 +266,10 @@ const Mechanics = {
       if (el.dataset.trap === "true") {
         el.remove();
         onScore(-getTrapPenalty(), false);
-        showEventMessage(`💣 Ловушка! −${RareEventsConfig.trapPenalty}`);
+        const penalty = getTrapPenalty();
+        showEventMessage(`💣 Ловушка! −${penalty}`);
+        explodeAtElement(el, "#ef4444");
+
         return;
       }
 
@@ -269,7 +282,14 @@ const Mechanics = {
 
         if (el.dataset.gold === "true") {
           onScore(getGoldBonus(), false);
-          showEventMessage(`🪙 Бонус +${RareEventsConfig.goldBonus}`);
+          const bonus = getGoldBonus();
+          showEventMessage(`🪙 Золотой бонус +${bonus}`);
+
+          scoreExplosion(
+            el.getBoundingClientRect().left,
+            el.getBoundingClientRect().top,
+            "gold"
+          );
         }
 
         if (remainingCorrect === 0) {
@@ -341,10 +361,28 @@ const Mechanics = {
     container.innerHTML = "";
 
     if (rareEvent === "freeze") {
-      const delay = 2000 + Math.random() * 1000;
+      const delay = 3000 + Math.random() * 1000;
 
-      setTimeout(() => {
-        // проверяем, что слово ещё активно
+      // отменяем старый таймер, если был
+      if (freezeDelayTimeout) {
+        clearTimeout(freezeDelayTimeout);
+        freezeDelayTimeout = null;
+      }
+
+      const levelSnapshot = Game.state.subLevelCount;
+      const levelNumber = Game.state.currentLevel;
+
+      freezeDelayTimeout = setTimeout(() => {
+        // если уровень сменился или игра закончена — выходим
+        if (
+          Game.state.isGameOver ||
+          Game.state.currentLevel !== levelNumber ||
+          Game.state.subLevelCount !== levelSnapshot
+        ) {
+          return;
+        }
+
+        // слово ещё существует
         if (activeEl && document.contains(activeEl)) {
           triggerFreeze();
         }
@@ -395,6 +433,10 @@ const Mechanics = {
 
         // НЕ УСПЕЛ
         if (top > 450) {
+          if (Game.state.isGameOver || Game.state.currentLevel !== 3) {
+            clearInterval(fall);
+            return;
+          }
           clearInterval(fall);
           activeEl.remove();
           activeEl = null;
@@ -418,21 +460,27 @@ const Mechanics = {
 
       const value = input.value.toLowerCase().trim();
 
-      // ПРАВИЛЬНЫЙ ВВОД
       if (value === activeWord) {
-        activeEl.remove();
+        const hitEl = activeEl;
+        const rect = hitEl.getBoundingClientRect();
+
+        hitEl.remove();
         activeEl = null;
         input.value = "";
 
         onScore(20, false);
 
-        // GOLD бонус
         if (rareEvent === "gold") {
-          onScore(getGoldBonus(), false);
-          showEventMessage(`🪙 Золотое слово +${RareEventsConfig.goldBonus}`);
+          const bonus = getGoldBonus();
+          onScore(bonus, false);
+          showEventMessage(`🪙 Золотое слово +${bonus}`);
+          scoreExplosion(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+            "gold"
+          );
         }
 
-        // вопрос завершён
         setTimeout(() => {
           onScore(0, true);
         }, 300);
