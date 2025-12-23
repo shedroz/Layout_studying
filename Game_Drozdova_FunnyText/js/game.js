@@ -29,7 +29,7 @@ const DifficultyConfig = {
 };
 
 const RareEventsConfig = {
-  chance: 0.1,
+  chance: 0.05,
   freezeDuration: 3000,
 
   baseGoldBonus: 20,
@@ -43,12 +43,22 @@ function getRandomRareEvent() {
   return events[Math.floor(Math.random() * events.length)];
 }
 
+let freezeTimeout = null;
+
 function triggerFreeze() {
+  if (Game.state.isFrozen) return;
+
   Game.state.isFrozen = true;
+
+  const overlay = document.getElementById("freeze-overlay");
+  overlay.classList.add("active");
+
   showEventMessage("❄ Все элементы заморожены!");
 
-  setTimeout(() => {
+  clearTimeout(freezeTimeout);
+  freezeTimeout = setTimeout(() => {
     Game.state.isFrozen = false;
+    overlay.classList.remove("active");
   }, RareEventsConfig.freezeDuration);
 }
 
@@ -62,17 +72,90 @@ function showEventMessage(text) {
 }
 
 function getGoldBonus() {
-  const cfg = Game.state.difficultyConfig || DifficultyConfig.medium;
-  return Math.round(
-    RareEventsConfig.baseGoldBonus * cfg.scoreMultiplier
-  );
+  const cfg = Game.state.difficultyConfig;
+  return Math.round(RareEventsConfig.baseGoldBonus * cfg.scoreMultiplier);
 }
 
 function getTrapPenalty() {
-  const cfg = Game.state.difficultyConfig || DifficultyConfig.medium;
-  return Math.round(
-    RareEventsConfig.baseTrapPenalty * cfg.penaltyMultiplier
-  );
+  const cfg = Game.state.difficultyConfig;
+  return Math.round(RareEventsConfig.baseTrapPenalty * cfg.penaltyMultiplier);
+}
+
+function scoreExplosion(x, y, color = "gold") {
+  const container = document.createElement("div");
+  container.className = "score-explosion";
+  container.style.left = x + "px";
+  container.style.top = y + "px";
+
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.background = color;
+
+    p.style.setProperty("--x", `${(Math.random() - 0.5) * 120}px`);
+    p.style.setProperty("--y", `${(Math.random() - 0.5) * 120}px`);
+
+    container.appendChild(p);
+  }
+
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 800);
+}
+
+function launchFirework(x, y) {
+  const colors = ["#fde047", "#f43f5e", "#38bdf8", "#22c55e", "#a855f7"];
+
+  for (let i = 0; i < 35; i++) {
+    const p = document.createElement("div");
+    p.className = "firework";
+
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 80 + Math.random() * 120;
+
+    p.style.setProperty("--x", x + "px");
+    p.style.setProperty("--y", y + "px");
+    p.style.setProperty("--dx", Math.cos(angle) * distance + "px");
+    p.style.setProperty("--dy", Math.sin(angle) * distance + "px");
+
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 1300);
+  }
+}
+
+function dropConfetti() {
+  for (let i = 0; i < 40; i++) {
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random() * 100 + "vw";
+    c.style.background = `hsl(${Math.random() * 360}, 90%, 60%)`;
+    c.style.animationDuration = 2 + Math.random() * 2 + "s";
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3500);
+  }
+}
+
+function celebrateWin() {
+  let count = 0;
+
+  const interval = setInterval(() => {
+    const x = 100 + Math.random() * (window.innerWidth - 200);
+    const y = 100 + Math.random() * (window.innerHeight - 300);
+
+    launchFirework(x, y);
+    dropConfetti();
+    count++;
+    if (count > 8) clearInterval(interval);
+  }, 400);
+}
+
+function explodeAtElement(el, color = "gold") {
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  scoreExplosion(x, y, color);
 }
 
 const Game = {
@@ -315,9 +398,13 @@ const Game = {
     }
   },
 
-  // DEBUG ФУНКЦИЯ
+  // DEBUG 
   debugSkipLevel() {
     clearInterval(this.state.timerId);
+    if (freezeDelayTimeout) {
+      clearTimeout(freezeDelayTimeout);
+      freezeDelayTimeout = null;
+    }
     if (this.state.currentLevel < 3) {
       this.startLevel(this.state.currentLevel + 1);
     } else {
@@ -329,15 +416,27 @@ const Game = {
     if (this.state.isGameOver) return;
 
     this.state.isGameOver = true;
-    if (this.state.timerId) {
-      clearInterval(this.state.timerId);
-      this.state.timerId = null;
+    if (typeof celebrateWin === "function") {
+      celebrateWin();
     }
-    this.showScreen("screen-result");
-    document.getElementById("final-score").innerText = this.state.score;
+    document.body.classList.add("win-glow");
+    setTimeout(() => {
+      document.body.classList.remove("win-glow");
+    }, 3500);
 
-    Storage.saveScore(this.state.playerName, this.state.score);
-    this.renderRatings("rating-list-final");
+    // немного задержим переход на экран результатов, чтобы анимацию было видно
+    setTimeout(() => {
+      if (this.state.timerId) {
+        clearInterval(this.state.timerId);
+        this.state.timerId = null;
+      }
+
+      this.showScreen("screen-result");
+      document.getElementById("final-score").innerText = this.state.score;
+
+      Storage.saveScore(this.state.playerName, this.state.score);
+      this.renderRatings("rating-list-final");
+    }, 100);
   },
 
   clearLeaders() {
