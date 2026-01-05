@@ -71,13 +71,17 @@ function showEventMessage(text) {
   setTimeout(() => msg.remove(), 2000);
 }
 
+function getCurrentCfg() {
+  return Game?.state?.difficultyConfig || DifficultyConfig.medium;
+}
+
 function getGoldBonus() {
-  const cfg = Game.state.difficultyConfig;
+  const cfg = getCurrentCfg();
   return Math.round(RareEventsConfig.baseGoldBonus * cfg.scoreMultiplier);
 }
 
 function getTrapPenalty() {
-  const cfg = Game.state.difficultyConfig;
+  const cfg = getCurrentCfg();
   return Math.round(RareEventsConfig.baseTrapPenalty * cfg.penaltyMultiplier);
 }
 
@@ -398,7 +402,7 @@ const Game = {
     }
   },
 
-  // DEBUG 
+  // DEBUG
   debugSkipLevel() {
     clearInterval(this.state.timerId);
     if (freezeDelayTimeout) {
